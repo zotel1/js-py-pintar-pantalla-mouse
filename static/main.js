@@ -1,9 +1,6 @@
-// captura del ID y declaracion del contexto
 var box = document.getElementById('box');
 var papel = box.getContext('2d');
 
-/* declaracion de variables la variable estado es para verificar si el mouse esta en movimiento
-las prevx y prevy son la posicion previa de x y y, las currX y currY son las posiciones actuales */
 var estado = false,
     prevX = 0,
     currX = 0,
@@ -14,23 +11,35 @@ var estado = false,
 var x = "black",
     y = 2;
 
-//agregamos los manejadores de eventos, 1 por cada accion del mouse.
-
+// Eventos de mouse
 box.addEventListener("mousemove", function (e) {
-    encontrarxy('move', e)
+    encontrarxy('move', e);
 }, false);
 box.addEventListener("mousedown", function (e) {
-    encontrarxy('down', e)
+    encontrarxy('down', e);
 }, false);
 box.addEventListener("mouseup", function (e) {
-    encontrarxy('up', e)
+    encontrarxy('up', e);
 }, false);
 box.addEventListener("mouseout", function (e) {
-    encontrarxy('out', e)
+    encontrarxy('out', e);
 }, false);
 
-// declarar la funcion para dibujar los pixeles.
+// Eventos de touch
+box.addEventListener("touchstart", function (e) {
+    encontrarxy('down', e.touches[0]);
+    e.preventDefault(); // Evita el desplazamiento en móviles mientras se dibuja
+}, false);
+box.addEventListener("touchmove", function (e) {
+    encontrarxy('move', e.touches[0]);
+    e.preventDefault(); // Evita el desplazamiento en móviles mientras se dibuja
+}, false);
+box.addEventListener("touchend", function (e) {
+    encontrarxy('up', e.changedTouches[0]);
+    e.preventDefault();
+}, false);
 
+// Función para dibujar
 function dibujar() {
     papel.beginPath();
     papel.moveTo(prevX, prevY);
@@ -41,10 +50,9 @@ function dibujar() {
     papel.closePath();
 }
 
-// funcion para encontrar el punto donde esta el mouse
-
+// Función para encontrar la posición (x, y)
 function encontrarxy(res, e) {
-    if (res == 'down') {
+    if (res === 'down') {
         prevX = currX;
         prevY = currY;
         currX = e.clientX - box.offsetLeft;
@@ -60,11 +68,11 @@ function encontrarxy(res, e) {
             punto = false;
         }
     }
-    if (res == 'up' || res == "out") {
-        estado = false; // si se levanta el click del mouse el estado pasa a false
+    if (res === 'up' || res === "out") {
+        estado = false;
     }
-    if (res == 'move') {
-        if (estado) { // si el mouse se mueve el  estado esta en true y se ejecuta la funcion dibujar
+    if (res === 'move') {
+        if (estado) {
             prevX = currX;
             prevY = currY;
             currX = e.clientX - box.offsetLeft;
