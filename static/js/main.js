@@ -1,4 +1,6 @@
 var box = document.getElementById('box');
+box.width = window.innerWidth;
+box.height = window.innerHeight;
 var papel = box.getContext('2d');
 
 var estado = false,
