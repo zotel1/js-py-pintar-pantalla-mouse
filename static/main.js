@@ -99,6 +99,9 @@ var estado = false,
 var x = "black",
     y = document.getElementById('brushSize').value; // Valor inicial del tamaño del pincel
 
+// Array para almacenar las líneas dibujadas
+var lines = [];
+
 // Cambiar el tamaño del pincel cuando se ajuste la barra
 document.getElementById('brushSize').addEventListener('input', function () {
     y = this.value;
@@ -109,19 +112,19 @@ box.addEventListener("mousemove", function (e) {
     encontrarxy('move', e);
 }, false);
 box.addEventListener("mousedown", function (e) {
-    if (e.button === 2) {
-        // Click derecho
+    if (e.button === 0) { // Click izquierdo para dibujar
         estado = true;
         prevX = currX;
         prevY = currY;
-        dibujar();
-    } else if (e.button === 0) {
-        // Click izquierdo
-        papel.clearRect(0, 0, box.width, box.height); // Borrar el canvas
+    } else if (e.button === 2) { // Click derecho para borrar
+        borrarLinea(e.clientX, e.clientY);
     }
 }, false);
 box.addEventListener("mouseup", function (e) {
-    estado = false; // Se detiene el dibujo al soltar el mouse
+    if (estado) {
+        estado = false; // Se detiene el dibujo al soltar el mouse
+        lines.push({ prevX, prevY, currX, currY, color: x, width: y });
+    }
 }, false);
 box.addEventListener("mouseout", function (e) {
     estado = false; // Se detiene el dibujo al salir del canvas
@@ -153,4 +156,40 @@ function encontrarxy(res, e) {
         prevX = currX;
         prevY = currY;
     }
+}
+
+// Función para borrar líneas cercanas
+function borrarLinea(mouseX, mouseY) {
+    lines = lines.filter(line => {
+        var dx = line.currX - line.prevX;
+        var dy = line.currY - line.prevY;
+        var len = Math.sqrt(dx * dx + dy * dy);
+        var dot = ((mouseX - line.prevX) * dx + (mouseY - line.prevY) * dy) / (len * len);
+
+        if (dot < 0 || dot > 1) {
+            return true; // Mantener línea si no está en el segmento
+        }
+
+        var closestX = line.prevX + dot * dx;
+        var closestY = line.prevY + dot * dy;
+        var distance = Math.sqrt((closestX - mouseX) ** 2 + (closestY - mouseY) ** 2);
+
+        return distance >= 5; // Mantener línea si no está cerca del mouse
+    });
+
+    redraw(); // Redibujar las líneas restantes
+}
+
+// Función para redibujar todas las líneas
+function redraw() {
+    papel.clearRect(0, 0, box.width, box.height); // Limpiar el canvas
+    lines.forEach(line => {
+        papel.beginPath();
+        papel.moveTo(line.prevX, line.prevY);
+        papel.lineTo(line.currX, line.currY);
+        papel.strokeStyle = line.color;
+        papel.lineWidth = line.width;
+        papel.stroke();
+        papel.closePath();
+    });
 }
