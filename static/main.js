@@ -85,6 +85,7 @@ function encontrarxy(res, e) {
 }
 */
 
+
 var box = document.getElementById('box');
 box.width = window.innerWidth;
 box.height = window.innerHeight;
