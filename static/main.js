@@ -1,4 +1,4 @@
-var box = document.getElementById('box');
+/*var box = document.getElementById('box');
 box.width = window.innerWidth;
 box.height = window.innerHeight;
 var papel = box.getContext('2d');
@@ -81,5 +81,76 @@ function encontrarxy(res, e) {
             currY = e.clientY - box.offsetTop;
             dibujar();
         }
+    }
+}
+*/
+
+var box = document.getElementById('box');
+box.width = window.innerWidth;
+box.height = window.innerHeight;
+var papel = box.getContext('2d');
+
+var estado = false,
+    prevX = 0,
+    currX = 0,
+    prevY = 0,
+    currY = 0;
+
+var x = "black",
+    y = document.getElementById('brushSize').value; // Valor inicial del tamaño del pincel
+
+// Cambiar el tamaño del pincel cuando se ajuste la barra
+document.getElementById('brushSize').addEventListener('input', function () {
+    y = this.value;
+});
+
+// Eventos de mouse
+box.addEventListener("mousemove", function (e) {
+    encontrarxy('move', e);
+}, false);
+box.addEventListener("mousedown", function (e) {
+    if (e.button === 2) {
+        // Click derecho
+        estado = true;
+        prevX = currX;
+        prevY = currY;
+        dibujar();
+    } else if (e.button === 0) {
+        // Click izquierdo
+        papel.clearRect(0, 0, box.width, box.height); // Borrar el canvas
+    }
+}, false);
+box.addEventListener("mouseup", function (e) {
+    estado = false; // Se detiene el dibujo al soltar el mouse
+}, false);
+box.addEventListener("mouseout", function (e) {
+    estado = false; // Se detiene el dibujo al salir del canvas
+}, false);
+
+// Evento para clic derecho
+box.addEventListener("contextmenu", function (e) {
+    e.preventDefault(); // Evitar el menú contextual
+});
+
+// Función para dibujar
+function dibujar() {
+    papel.beginPath();
+    papel.moveTo(prevX, prevY);
+    papel.lineTo(currX, currY);
+    papel.strokeStyle = x;
+    papel.lineWidth = y;
+    papel.stroke();
+    papel.closePath();
+}
+
+// Función para encontrar la posición (x, y)
+function encontrarxy(res, e) {
+    currX = e.clientX - box.offsetLeft;
+    currY = e.clientY - box.offsetTop;
+
+    if (estado) {
+        dibujar();
+        prevX = currX;
+        prevY = currY;
     }
 }
